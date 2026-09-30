@@ -1,0 +1,46 @@
+{
+  "id": "harness-bug-reopen",
+  "source": {
+    "entry": "2026-09-16 — /insights report over 2026-09-09 to 2026-09-16",
+    "quote": "A worker that exits in 0 s with a harness's own usage/argument-parsing error, not a task failure, is a broken invocation, not broken work: `lifecycle/crash.ts` classifies it `harness_bug` and reopens with a hint not to re-dispatch on that harness, rather than retrying the same broken command."
+  },
+  "input": "[Overseer] webapp-c2x reopened: worker ended without commits on codex: codex exited with code 2: error: unexpected argument '--ask-for-approval' found\n\nUsage: codex exec [OPTIONS] [PROMPT]\n\nFor more information, try '--help'. The codex CLI failed to start (a harness bug, not the task): do not re-dispatch this bead on codex; pass harness claude or ask the user.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b33-h2ga", "title": "Show the invoice due date on the invoice list", "branch": "feature/invoice-due-date", "status": "open", "total": 1, "done": 0 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-c2x", "title": "Show the due date column on the invoice list", "status": "open", "labels": ["overseer:batch:webapp-b33-h2ga"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-c2x"] },
+        "reply": [{ "id": "webapp-c2x", "title": "Show the due date column on the invoice list", "status": "open", "labels": ["overseer:batch:webapp-b33-h2ga"], "description": "Add a \"Due\" column after \"Amount\" in src/invoices/InvoiceList.vue, showing each invoice's due_date in the user's locale format.\n\nDefinition of Done: `pnpm vitest run src/invoices/InvoiceList.test.ts` passes with a test for the new column; `pnpm typecheck` passes.", "notes": "Worker session 7e1d9c20-4b3a-4f5e-8c6d-1a2b3c4d5e6f on codex ended without new commits: codex exited with code 2: error: unexpected argument '--ask-for-approval' found\n\nUsage: codex exec [OPTIONS] [PROMPT]\n\nFor more information, try '--help'." }]
+      },
+      {
+        "tool": "worker_status",
+        "args": { "bead_id": "webapp-c2x" },
+        "reply": { "session_id": "7e1d9c20-4b3a-4f5e-8c6d-1a2b3c4d5e6f", "harness": "codex", "account": null, "account_name": null, "account_label": null, "state": "failed", "last_text": null, "end_reason": "codex exited with code 2", "files": [], "cost": null, "verify_status": null, "started_at": "2026-09-25T09:12:03.000Z", "ended_at": "2026-09-25T09:12:03.000Z" }
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b33-h2ga", "repo_id": "webapp", "title": "Show the invoice due date on the invoice list", "branch": "feature/invoice-due-date", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-16T08:00:00.000Z", "updated_at": "2026-09-16T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 1, "beads_done": 0, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "spawn_worker",
+        "args": { "bead_id": "webapp-c2x" },
+        "reply": { "session_id": "2c8e4f6a-1b3d-4e5f-9a7b-8c9d0e1f2a3b", "bead_id": "webapp-c2x", "harness": "claude", "model": "sonnet", "tier": null, "batch_id": "webapp-b33-h2ga" }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "spawn_worker", "args": { "bead_id": "webapp-c2x", "harness": "claude" } },
+    { "kind": "arg_contains", "tool": "spawn_worker", "arg": "batch_id", "phrase": "webapp-b33-h2ga" }
+  ]
+}

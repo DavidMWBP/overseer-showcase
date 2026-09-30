@@ -1,0 +1,51 @@
+{
+  "id": "out-of-repo-failures",
+  "source": {
+    "entry": "2026-09-24 — acme-portal-sample-025: out-of-repository failures go to the user",
+    "quote": "When a batch's goal is a passing check (a CI job or suite) and failures remain whose cause is outside the repository (a backend that does not support the flow yet, or a bucket's CORS rules), the orchestrator does not request review with those failures written as Known limits. It first puts each one to the user with `ask_user`, asking whether to skip it with a comment that names the cause and when to re-enable it, following the repository's own workaround convention, or leave it failing; then it requests review with the user's answer."
+  },
+  "input": "[Overseer] webapp-5tz landed on feature/fix-e2e-suite (2/2 beads done; verify command `pnpm lint` passed; reviewed by claude fable)",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "webapp-b18-h6wn", "title": "Fix the failing e2e suite on dev", "branch": "feature/fix-e2e-suite", "status": "open", "total": 2, "done": 2 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b18-h6wn", "repo_id": "webapp", "title": "Fix the failing e2e suite on dev", "branch": "feature/fix-e2e-suite", "base_branch": "dev", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-24T08:00:00.000Z", "updated_at": "2026-09-24T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 2, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-2hn", "title": "Fix the selectors broken by the new header", "status": "closed", "labels": ["overseer:batch:webapp-b18-h6wn", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-5tz", "title": "Fix the remaining e2e failures", "status": "closed", "labels": ["overseer:batch:webapp-b18-h6wn", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-2hn"] },
+        "reply": [{ "id": "webapp-2hn", "title": "Fix the selectors broken by the new header", "status": "closed", "description": "Update the e2e selectors that point at the old header.\n\nDefinition of Done: `pnpm e2e -- header` passes.", "notes": "Check: pnpm e2e -- header - PASS - 14 passed." }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-5tz"] },
+        "reply": [{ "id": "webapp-5tz", "title": "Fix the remaining e2e failures", "status": "closed", "description": "Make the e2e suite pass on dev.\n\nDefinition of Done: `pnpm e2e` passes.", "notes": "Fixed 9 of 12 failures (stale fixtures and two timing waits).\nCheck: pnpm e2e - FAIL - 3 failed, 118 passed. The three failures are outside this repository:\n- document-upload.spec.ts:88 and avatar-upload.spec.ts:41: the browser upload to the storage bucket is blocked by CORS for origin https://dev.webapp.example; the bucket's CORS rules need that origin.\n- payout-request.spec.ts:152: the backend answers \"Payout provider not supported for this account type\"; the flow is not implemented on the backend yet.\nNo change in this repository can make these three pass." }]
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "not_called", "tool": "request_batch_review" },
+    { "kind": "called", "tool": "ask_user" },
+    { "kind": "rubric", "line": "The question names the failing tests whose cause is outside the repository (the storage bucket's CORS rules and the backend that does not support the payout flow yet) and asks whether to skip them with a comment naming the cause, or to leave them failing." }
+  ]
+}

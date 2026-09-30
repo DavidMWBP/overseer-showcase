@@ -1,0 +1,56 @@
+{
+  "id": "counting-rule-vs-principle",
+  "source": {
+    "entry": "2026-09-23 — acme-portal-sample-020: a bead's counting rule is checked against the user's stated principles",
+    "quote": "Before a bead's description fixes a user-visible counting or behaviour rule, check it against principles the user already stated on the same subject in this batch or a sibling batch (their rejections and chat), and `ask_user` before dispatching a spec that contradicts one."
+  },
+  "input": "[Overseer] Batch acme-portal-sample-021 rejected: The item count is wrong for a category whose default record has no amounts. A default record with every amount blank counts as zero items.",
+  "state": {
+    "repos": [{ "id": "acme-portal", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "acme-portal-sample-021", "title": "#9352 Item count by category", "branch": "feature/9352-item-count", "status": "open", "total": 2, "done": 2 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_batches",
+        "args": { "repo": "acme-portal", "batch_id": "acme-portal-sample-021" },
+        "reply": { "id": "acme-portal-sample-021", "repo_id": "acme-portal", "title": "#9352 Item count by category", "branch": "feature/9352-item-count", "base_branch": "dev", "status": "open", "note": null, "mr_url": "https://gitlab.example.com/acme-portal/acme-portal/-/merge_requests/8461", "conflict_files": null, "created_at": "2026-09-23T08:00:00.000Z", "updated_at": "2026-09-23T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "history": "The summary shows an item count per category, based on its record rows.\n\nRejected: The item count is zero for a new category. It should be one because the system always creates a default record.\n\nThe summary shows an item count per category; the default record is always counted, so a new category shows one.\n\nRejected: The item count is wrong for a category whose default record has no amounts. A default record with every amount blank counts as zero items.", "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 2, "beads_closed": 0, "status_label": "open" }
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "acme-portal" },
+        "reply": [{ "id": "acme-portal-sample-021", "repo_id": "acme-portal", "title": "#9352 Item count by category", "branch": "feature/9352-item-count", "base_branch": "dev", "status": "open", "mr_url": "https://gitlab.example.com/acme-portal/acme-portal/-/merge_requests/8461", "conflict_files": null, "created_at": "2026-09-23T08:00:00.000Z", "updated_at": "2026-09-23T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 2, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "acme-portal" },
+        "reply": [
+          { "id": "acme-portal-task-201", "title": "Item count per category on the summary", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-021", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "acme-portal-task-202", "title": "Count the default record in the item total", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-021", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "acme-portal-task-202"] },
+        "reply": [{ "id": "acme-portal-task-202", "title": "Count the default record in the item total", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-021", "overseer:merged"], "description": "The user's rejection of the first round, quoted: \"this should always be 1 because we always create a default record item\". Count the default record item row of every category, whatever its amounts, so a new category shows 1.\n\nDefinition of Done: `pnpm vitest run src/summary/itemCount.test.ts` passes with a case for a new category (count 1); `pnpm lint` passes.", "notes": "" }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["create"] },
+        "reply": [{ "id": "acme-portal-task-203", "status": "open", "title": "Item count for a default record with blank amounts", "labels": ["overseer:batch:acme-portal-sample-021"] }]
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "ask_user" },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "rubric", "line": "The question points out that the new rejection (a default record row with every amount blank counts as zero) contradicts the user's earlier statement that the count should always be 1 because a default record item is always created, and asks which rule holds." }
+  ]
+}

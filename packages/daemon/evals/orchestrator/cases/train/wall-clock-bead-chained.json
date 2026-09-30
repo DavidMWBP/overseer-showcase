@@ -1,0 +1,62 @@
+{
+  "id": "wall-clock-bead-chained",
+  "source": {
+    "entry": "2026-09-18 — overseer-b80-s45y: a wall-clock Definition of Done is measured alone",
+    "quote": "When a bead's Definition of Done is a wall clock (a timing target, a performance floor, a stability run), its beads are chained with `blocked-by:` and dispatched one at a time, never in parallel, and the bead description says the measurement runs with no other worker on the machine."
+  },
+  "input": "[repo: webapp] Add one more task to the test speed batch: src/api/search.perf.test.ts must finish in under 2 seconds on this machine. It shares no files with the import test task.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b26-t3vn", "title": "Speed up the slow test files", "branch": "feature/speed-up-slow-tests", "status": "open", "total": 1, "done": 0 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-k3m", "title": "src/import/import.perf.test.ts under 5 seconds", "status": "in_progress", "labels": ["overseer:batch:webapp-b26-t3vn", "overseer:running"], "column": "running" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-k3m"] },
+        "reply": [{ "id": "webapp-k3m", "title": "src/import/import.perf.test.ts under 5 seconds", "status": "in_progress", "labels": ["overseer:batch:webapp-b26-t3vn", "overseer:running"], "description": "Make src/import/import.perf.test.ts finish in under 5 seconds without dropping any of its cases.\n\nMeasure with no other worker running on the machine.\n\nDefinition of Done: three runs of `pnpm vitest run src/import/import.perf.test.ts`, each under 5 s, quoted with the machine load; `pnpm typecheck` passes.", "notes": "" }]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b26-t3vn", "repo_id": "webapp", "title": "Speed up the slow test files", "branch": "feature/speed-up-slow-tests", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-18T08:00:00.000Z", "updated_at": "2026-09-18T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 1, "beads_done": 0, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "worker_status",
+        "args": { "bead_id": "webapp-k3m" },
+        "reply": { "session_id": "4a6c8e0f-2b4d-4f6a-8c0e-1d3f5a7b9c2e", "harness": "claude", "account": "a-personal", "account_name": "Secondary Account", "account_label": null, "state": "running", "last_text": "Profiling the fixture setup; the CSV parse runs once per case.", "end_reason": null, "files": ["src/import/import.perf.test.ts"], "cost": null, "verify_status": null, "started_at": "2026-09-25T10:40:12.000Z", "ended_at": null }
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["create"] },
+        "reply": [{ "id": "webapp-s9p", "status": "open", "title": "src/api/search.perf.test.ts under 2 seconds", "labels": ["overseer:batch:webapp-b26-t3vn"] }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["dep", "add", "webapp-s9p", "webapp-k3m"] },
+        "reply": { "issue_id": "webapp-s9p", "depends_on_id": "webapp-k3m", "type": "blocks" }
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["dep", "list", "webapp-s9p"] },
+        "reply": [{ "id": "webapp-k3m", "status": "in_progress", "title": "src/import/import.perf.test.ts under 5 seconds" }]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-k3m", "title": "src/import/import.perf.test.ts under 5 seconds", "status": "in_progress", "labels": ["overseer:batch:webapp-b26-t3vn", "overseer:running"], "column": "running" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}, { "id": "webapp-s9p", "title": "src/api/search.perf.test.ts under 2 seconds", "status": "open", "labels": ["overseer:batch:webapp-b26-t3vn"], "column": "blocked", "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 1}]
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "rubric", "line": "The new task is recorded as depending on webapp-k3m: either `--deps blocked-by:webapp-k3m` on its `bd create`, or a `bd dep add <new task id> webapp-k3m` after it." },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "arg_contains", "tool": "bd", "arg": "args", "phrase": "no other worker" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "overseer",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "start": "pnpm -r --parallel start",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

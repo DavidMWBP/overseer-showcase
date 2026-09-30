@@ -1,0 +1,41 @@
+{
+  "id": "comment-only-finding",
+  "source": {
+    "entry": "2026-09-18 — acme-portal-sample-015: a comment-only finding does not get its own round",
+    "quote": "A finding whose whole content is a stale comment, docblock or documentation sentence is not re-dispatched on its own. Collect such findings and hand them to the bead's next round alongside code work, or to one closing documentation bead in the batch. A round costs a worker session; a comment does not earn one."
+  },
+  "input": "[Overseer] webapp-t4v awaits a decision: review round 1 of 1 (claude fable) still has findings:\n- [must] src/composables/useViewport.ts: The docblock above `tierFor` still says the tablet tier starts at 768px; the code now starts it at 834px. Update the comment.\nTotals so far: 1 worker session, 1 critic session, 0 re-dispatches, cost $1.90 (reported). Discuss the findings with the user. Then either call spawn_worker with instructions that address them (a fresh set of review rounds follows) or accept_review(repo, bead_id, note) to land the work as it is, with the user's reason as the note.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "webapp-b38-y2cf", "title": "#9366 Tablet breakpoint at 834px", "branch": "feature/366-tablet-834", "status": "open", "total": 3, "done": 1 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-t4v"] },
+        "reply": [{ "id": "webapp-t4v", "title": "Move the tablet breakpoint to 834px", "status": "open", "labels": ["overseer:batch:webapp-b38-y2cf"], "description": "Change the tablet tier in src/composables/useViewport.ts to start at 834px instead of 768px.\n\nDefinition of Done: `pnpm vitest run src/composables/useViewport.test.ts` passes with cases at 833 and 834px; `pnpm lint` passes.", "notes": "Review round 1 of 1 (claude fable) still has findings:\n- [must] src/composables/useViewport.ts: The docblock above `tierFor` still says the tablet tier starts at 768px; the code now starts it at 834px. Update the comment." }]
+      },
+      {
+        "tool": "worker_diff",
+        "args": { "bead_id": "webapp-t4v" },
+        "reply": "diff --git a/src/composables/useViewport.ts b/src/composables/useViewport.ts\n--- a/src/composables/useViewport.ts\n+++ b/src/composables/useViewport.ts\n@@ -8,7 +8,7 @@\n /** Tablet tier: 768px up to 1023px. */\n export function tierFor(width: number): Tier {\n-  if (width >= 768 && width < 1024) return 'tablet'\n+  if (width >= 834 && width < 1024) return 'tablet'\n"
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-t3u", "title": "Tablet breakpoint token at 834px", "status": "closed", "labels": ["overseer:batch:webapp-b38-y2cf", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-t4v", "title": "Move the tablet breakpoint to 834px", "status": "open", "labels": ["overseer:batch:webapp-b38-y2cf"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-t5w", "title": "Tablet header layout at 834px", "status": "in_progress", "labels": ["overseer:batch:webapp-b38-y2cf", "overseer:running"], "column": "running" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "not_called", "tool": "accept_review" },
+    { "kind": "rubric", "line": "The run does not send the stale docblock back to a worker as a round of its own: it proposes landing the change and handling the comment together with other work (a later code round or one closing documentation task), and leaves the decision to land to the user." }
+  ]
+}

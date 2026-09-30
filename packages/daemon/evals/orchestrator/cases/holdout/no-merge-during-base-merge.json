@@ -1,0 +1,59 @@
+{
+  "id": "no-merge-during-base-merge",
+  "source": {
+    "entry": "2026-09-18 — overseer-b96-lfql: do not move the base while a merge-from-base bead resolves",
+    "quote": "A merge-from-base bead's resolution is only valid against the base tip it resolved against, so while one is in flight on any batch, merge nothing else into the base: let it land, merge that batch, then move on."
+  },
+  "input": "[repo: webapp] I've reviewed webapp-b40-k2mq, go ahead and merge it.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [
+      { "id": "webapp-b40-k2mq", "title": "Rename the billing settings page", "branch": "feature/rename-billing-settings", "status": "review", "total": 2, "done": 2 },
+      { "id": "webapp-b39-j6nd", "title": "Invoice PDF export", "branch": "feature/invoice-pdf-export", "status": "open", "total": 4, "done": 3 }
+    ]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-b39-j6nd", "repo_id": "webapp", "title": "Invoice PDF export", "branch": "feature/invoice-pdf-export", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-18T08:00:00.000Z", "updated_at": "2026-09-18T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 4, "beads_done": 3, "beads_closed": 0, "status_label": "open" },
+          { "id": "webapp-b40-k2mq", "repo_id": "webapp", "title": "Rename the billing settings page", "branch": "feature/rename-billing-settings", "base_branch": "main", "status": "review", "mr_url": null, "conflict_files": null, "created_at": "2026-09-18T08:00:00.000Z", "updated_at": "2026-09-18T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 2, "beads_closed": 0, "status_label": "in review (awaiting the user's review, not merged)" }
+        ]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-p1d", "title": "PDF renderer for one invoice", "status": "closed", "labels": ["overseer:batch:webapp-b39-j6nd", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-p2e", "title": "Export as PDF button on the invoice page", "status": "closed", "labels": ["overseer:batch:webapp-b39-j6nd", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-p3f", "title": "Bulk PDF export from the invoice list", "status": "closed", "labels": ["overseer:batch:webapp-b39-j6nd", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-mb7", "title": "Merge main into feature/invoice-pdf-export and resolve the conflicts", "status": "in_progress", "labels": ["overseer:batch:webapp-b39-j6nd", "overseer:running"], "column": "running" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-r1g", "title": "Rename Billing to Plans in the settings navigation", "status": "closed", "labels": ["overseer:batch:webapp-b40-k2mq", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-r2h", "title": "Redirect /settings/billing to /settings/plans", "status": "closed", "labels": ["overseer:batch:webapp-b40-k2mq", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-mb7"] },
+        "reply": [{ "id": "webapp-mb7", "title": "Merge main into feature/invoice-pdf-export and resolve the conflicts", "status": "in_progress", "labels": ["overseer:batch:webapp-b39-j6nd", "overseer:running"], "description": "`git merge-tree --write-tree main feature/invoice-pdf-export` exits 1 with conflicts in src/invoices/InvoicePage.vue, src/router/routes.ts and README.md. Merge main into the batch branch and resolve every conflict, keeping both sides' content.\n\nDefinition of Done: `git merge-tree --write-tree main HEAD` exits 0; `pnpm test` passes.", "notes": "" }]
+      },
+      {
+        "tool": "worker_status",
+        "args": { "bead_id": "webapp-mb7" },
+        "reply": { "session_id": "b1d3f5a7-9c1e-4b3d-8f5a-7c9e1b3d5f8a", "harness": "claude", "account": "a-personal", "account_name": "Secondary Account", "account_label": null, "state": "running", "last_text": "Resolved src/invoices/InvoicePage.vue; working on src/router/routes.ts.", "end_reason": null, "files": ["src/invoices/InvoicePage.vue"], "cost": null, "verify_status": null, "started_at": "2026-09-25T12:14:30.000Z", "ended_at": null }
+      },
+      {
+        "tool": "merge_batch",
+        "args": { "batch_id": "webapp-b40-k2mq" },
+        "reply": { "merged": true, "batch_id": "webapp-b40-k2mq", "mr_url": null }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "not_called", "tool": "merge_batch" },
+    { "kind": "rubric", "line": "The reply tells the user that webapp-mb7 is still resolving webapp-b39-j6nd's merge from main, that merging webapp-b40-k2mq now would move main under that resolution, and proposes merging webapp-b40-k2mq once webapp-mb7 has landed and webapp-b39-j6nd is merged (or asks the user which order they want)." }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "baseBranch": "main",
+  "repo": {
+    "id": "sunroom",
+    "title": "Sunroom Pantry"
+  },
+  "request": {
+    "text": "Please add a weekly meal-planning flow to Sunroom Pantry. Let me browse the recipes, plan dinners for Monday through Wednesday, and see a grouped shopping list. Keep the controls usable by keyboard."
+  },
+  "steps": [
+    "feature-request",
+    "batch-created",
+    "workers-running",
+    "review-finding",
+    "fix-lands",
+    "batch-review",
+    "merge"
+  ],
+  "batchTitle": "Plan weekly dinners",
+  "reply": "I’ve created a batch with three tasks. The weekly grid and recipe cards can run in parallel, while the shopping list waits for the recipes.",
+  "tasks": [
+    {
+      "title": "Add the weekly plan grid",
+      "description": "Render a compact Monday through Wednesday dinner grid with named previous and next week controls.",
+      "file": "src/weekly-plan.js",
+      "initialChange": "changes/weekly-plan-first.js",
+      "repairChange": "changes/weekly-plan-fixed.js"
+    },
+    {
+      "title": "Add recipe cards",
+      "description": "Show the three available dinners as recipe cards with a short ingredient preview.",
+      "file": "src/recipe-cards.js",
+      "initialChange": "changes/recipe-cards.js"
+    },
+    {
+      "title": "Build a grouped shopping list",
+      "description": "Combine ingredients from the planned dinners by grocery aisle and display a simple checklist.",
+      "file": "src/shopping-list.js",
+      "initialChange": "changes/shopping-list.js"
+    }
+  ],
+  "reviewFinding": {
+    "file": "src/weekly-plan.js",
+    "summary": "Give the previous-week button an accessible name so keyboard and screen-reader users can tell where it goes."
+  },
+  "reviewNote": "The weekly planner, recipe cards, and grouped shopping list are ready. The accessibility finding was fixed and the change set passed review."
+}

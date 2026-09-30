@@ -1,0 +1,48 @@
+{
+  "id": "staged-commits-redispatch",
+  "source": {
+    "entry": "2026-09-14 — acme-portal #9310 run",
+    "quote": "A worker started a long test run, ended its session without committing, and the bead reopened with no commits. The re-dispatch instructions now say to commit in stages and run long commands in the foreground with a bounded timeout."
+  },
+  "input": "[Overseer] webapp-q7n reopened: worker ended without commits on DeepSeek: opencode printed nothing for 1200 s after its last event (step_start); the turn was ended; last message: The selector fixes are done in e2e/pages/cart.page.ts and e2e/pages/checkout.page.ts; running `pnpm e2e` to confirm them before committing.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "webapp-b30-e8jq", "title": "Fix the e2e selectors after the cart redesign", "branch": "feature/e2e-selectors-cart", "status": "open", "total": 1, "done": 0 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-q7n", "title": "Update the cart and checkout e2e selectors", "status": "open", "labels": ["overseer:batch:webapp-b30-e8jq"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-q7n"] },
+        "reply": [{ "id": "webapp-q7n", "title": "Update the cart and checkout e2e selectors", "status": "open", "labels": ["overseer:batch:webapp-b30-e8jq"], "description": "The cart redesign renamed the data-testid attributes of the cart and checkout pages. Update the page objects in e2e/pages/cart.page.ts and e2e/pages/checkout.page.ts to the new ids.\n\nDefinition of Done: `pnpm e2e` passes (the full suite, about 30 minutes); `pnpm lint` passes.", "notes": "Worker session 5a7c9e1a-3b5d-4f7a-8c9e-1a3c5e7a9c2d on DeepSeek ended without new commits: opencode printed nothing for 1200 s after its last event (step_start); the turn was ended; last message: The selector fixes are done in e2e/pages/cart.page.ts and e2e/pages/checkout.page.ts; running `pnpm e2e` to confirm them before committing." }]
+      },
+      {
+        "tool": "worker_status",
+        "args": { "bead_id": "webapp-q7n" },
+        "reply": { "session_id": "5a7c9e1a-3b5d-4f7a-8c9e-1a3c5e7a9c2d", "harness": "opencode", "account": "a-deepseek", "account_name": "DeepSeek", "account_label": null, "state": "failed", "last_text": "The selector fixes are done in e2e/pages/cart.page.ts and e2e/pages/checkout.page.ts; running `pnpm e2e` to confirm them before committing.", "end_reason": "opencode printed nothing for 1200 s after its last event (step_start); the turn was ended", "files": ["e2e/pages/cart.page.ts", "e2e/pages/checkout.page.ts"], "cost": 0.41, "verify_status": null, "started_at": "2026-09-25T06:10:22.000Z", "ended_at": "2026-09-25T06:52:47.000Z" }
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b30-e8jq", "repo_id": "webapp", "title": "Fix the e2e selectors after the cart redesign", "branch": "feature/e2e-selectors-cart", "base_branch": "dev", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-14T08:00:00.000Z", "updated_at": "2026-09-14T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 1, "beads_done": 0, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "spawn_worker",
+        "args": { "bead_id": "webapp-q7n" },
+        "reply": { "session_id": "7c9e1a3c-5d7f-4a9c-8e1a-3c5e7a9c1e4f", "bead_id": "webapp-q7n", "harness": "claude", "model": "sonnet", "tier": null, "batch_id": "webapp-b30-e8jq" }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "spawn_worker", "args": { "bead_id": "webapp-q7n" } },
+    { "kind": "arg_contains", "tool": "spawn_worker", "arg": "instructions", "phrase": "commit" },
+    { "kind": "rubric", "line": "The re-dispatch instructions tell the worker to commit its work in stages before running the long suite, and to run long commands in the foreground with a bounded timeout." },
+    { "kind": "no_message" }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "degraded-fallback-ask",
+  "source": {
+    "entry": "2026-09-15 — overseer-b33-e4d5 retrospective (rejection)",
+    "quote": "When the chosen mechanism fails or a worker result or review finding proposes a lesser alternative, the orchestrator stops and reports, checks a named comparable tool's implementation for an equivalent route, dispatches it if reachable, and otherwise asks the user before instructing the fallback."
+  },
+  "input": "[Overseer] webapp-g7d reopened: worker ended without commits on Secondary Account: Stopping before any edit. Saving the report straight to the user's Google Drive needs the drive.file scope on the project's OAuth client, and its consent screen is unverified: Google refuses the scope for every account outside the test-user list (\"Error 403: access_denied — webapp has not completed the Google verification process\"). Getting verified is a Google review of the project, not a code change. A lesser route works today: generate the file and download it in the browser, and the user uploads it to Drive by hand. Say if I should build that instead.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b44-z6hd", "title": "Save reports to Google Drive", "branch": "feature/reports-to-drive", "status": "open", "total": 1, "done": 0 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-g7d", "title": "Save to Google Drive button on the report page", "status": "open", "labels": ["overseer:batch:webapp-b44-z6hd"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-g7d"] },
+        "reply": [{ "id": "webapp-g7d", "title": "Save to Google Drive button on the report page", "status": "open", "labels": ["overseer:batch:webapp-b44-z6hd"], "description": "A \"Save to Google Drive\" button on src/reports/ReportPage.vue saves the report as a file in the signed-in user's own Google Drive, with no download step.\n\nDefinition of Done: `pnpm vitest run src/reports/driveSave.test.ts` passes; a live save into a test account's Drive is shown in the final message.", "notes": "Worker session d3f5a7c9-1e3a-4d5f-8b7c-9e1a3c5e7a0d on Secondary Account ended without new commits: Stopping before any edit. Saving the report straight to the user's Google Drive needs the drive.file scope on the project's OAuth client, and its consent screen is unverified: Google refuses the scope for every account outside the test-user list (\"Error 403: access_denied — webapp has not completed the Google verification process\"). Getting verified is a Google review of the project, not a code change. A lesser route works today: generate the file and download it in the browser, and the user uploads it to Drive by hand. Say if I should build that instead." }]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b44-z6hd", "repo_id": "webapp", "title": "Save reports to Google Drive", "branch": "feature/reports-to-drive", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-15T08:00:00.000Z", "updated_at": "2026-09-15T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 1, "beads_done": 0, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "ask_user" },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "rubric", "line": "The question names the worker's lesser route (download the file and upload it to Drive by hand), says it drops the direct save with no download step that the task asked for, and leaves the choice of whether to take it to the user." }
+  ]
+}

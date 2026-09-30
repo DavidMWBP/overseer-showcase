@@ -1,0 +1,9 @@
+{
+  "name": "Overseer",
+  "short_name": "Overseer",
+  "start_url": "/#office",
+  "display": "standalone",
+  "background_color": "#151b23",
+  "theme_color": "#1c2430",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

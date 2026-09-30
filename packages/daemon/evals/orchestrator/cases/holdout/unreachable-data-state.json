@@ -1,0 +1,57 @@
+{
+  "id": "unreachable-data-state",
+  "source": {
+    "entry": "2026-09-23 — acme-portal-sample-021: check a data state is reachable before guarding it",
+    "quote": "Before a bead builds or changes behaviour for a specific data state (a 0 total, an empty list, a missing field), check that the product can produce that state: the form's validation schema, the API, or an import path. Quote that check in the description. A state the product cannot produce goes to the user as a question before any bead guards it."
+  },
+  "input": "[repo: acme-portal] One more task for the import batch: an import into an existing category whose total is 0 must be blocked with the existing \"over the configured total\" error.",
+  "state": {
+    "repos": [{ "id": "acme-portal", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "acme-portal-sample-021", "title": "#9341 Import records into existing categories", "branch": "feature/9341-import-existing-categories", "status": "open", "total": 3, "done": 2 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "acme-portal" },
+        "reply": [
+          { "id": "acme-portal-task-210", "title": "Match imported records to existing categories by name", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-021", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "acme-portal-task-211", "title": "Block imports that exceed the configured total", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-021", "overseer:merged"], "column": "done" , "description": "When the imported records of an existing category add up to more than its total, block the upload with \"over the configured total\".\n\nDefinition of Done: `pnpm vitest run src/import/categoryTotals.test.ts` passes; `pnpm lint` passes.", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "acme-portal-task-212", "title": "Live check: import into an existing category on the development backend", "status": "open", "labels": ["overseer:batch:acme-portal-sample-021"], "column": "ready" , "description": "On the dev backend, create an existing category in each state the import handles and upload the sample file against it. Change no code.\n\nReport each case as `Check: <case> - PASS|FAIL|BLOCKED - <what happened>`.", "priority": 2, "notes": "Verification incomplete: the following Check: lines did not PASS:\n> Check: live import, category total 0 - BLOCKED - setup can't be created: category form requires a positive configured total (\"Enter a whole number of units greater than zero.\", `src/forms/schemas.ts:1077`)", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "acme-portal-task-212"] },
+        "reply": [{ "id": "acme-portal-task-212", "title": "Live check: import into an existing category on the development backend", "status": "open", "labels": ["overseer:batch:acme-portal-sample-021"], "description": "On the dev backend, create an existing category in each state the import handles and upload the sample file against it. Change no code.\n\nReport each case as `Check: <case> - PASS|FAIL|BLOCKED - <what happened>`.", "notes": "Verification incomplete: the following Check: lines did not PASS:\n> Check: live import, category total 0 - BLOCKED - setup can't be created: category form requires a positive configured total (\"Enter a whole number of units greater than zero.\", `src/forms/schemas.ts:1077`)" }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "acme-portal-task-211"] },
+        "reply": [{ "id": "acme-portal-task-211", "title": "Block imports that exceed the configured total", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-021", "overseer:merged"], "description": "When the imported records of an existing category add up to more than its total, block the upload with \"over the configured total\".\n\nDefinition of Done: `pnpm vitest run src/import/categoryTotals.test.ts` passes; `pnpm lint` passes.", "notes": "" }]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "acme-portal" },
+        "reply": [{ "id": "acme-portal-sample-021", "repo_id": "acme-portal", "title": "#9341 Import records into existing categories", "branch": "feature/9341-import-existing-categories", "base_branch": "dev", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-23T08:00:00.000Z", "updated_at": "2026-09-23T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 3, "beads_done": 2, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["create"] },
+        "reply": [{ "id": "acme-portal-task-213", "status": "open", "title": "Block an import into a category whose total is zero", "labels": ["overseer:batch:acme-portal-sample-021"] }]
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "ask_user" },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "rubric", "line": "The question tells the user that a category with a total of 0 cannot be created, because the category form requires a positive configured total, and asks how to proceed before the task is built." }
+  ]
+}

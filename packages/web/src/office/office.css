@@ -1,0 +1,285 @@
+/*
+ * The Office view. Rules ported from Claude-Office's office.css/rooms.css and trimmed to the classes this port uses;
+ * the Dunder Mifflin, chat-panel and title-bar rules are not carried over.
+ */
+
+.office {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  height: calc(100dvh - 32px);
+  min-width: 0;
+  width: 100%;
+}
+
+/* The shell keeps the room mounted while another view shows so its desks and characters survive; the wrapper is hidden there. */
+.office-hold[hidden] { display: none; }
+
+/* The needs-you strip sits above the room while the home keeps the viewport height. */
+.office-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  height: calc(100dvh - 32px);
+  min-width: 0;
+  width: 100%;
+}
+.office-home > .office { flex: 1; min-height: 0; width: 100%; height: 100%; }
+
+/* The dock gets its own column only after Office measures enough content width; both columns use the measured Office box. */
+.office.office-with-chat {
+  display: grid;
+  grid-template-columns: var(--office-stage-width) 20px minmax(340px, 400px);
+  grid-template-rows: auto auto;
+  align-content: start;
+  align-items: start;
+  justify-content: center;
+  column-gap: 0;
+  row-gap: 10px;
+}
+.office-with-chat > .office-stage { grid-column: 1; grid-row: 1; width: 100%; }
+.office-with-chat > .office-empty { grid-column: 1; grid-row: 2; }
+.office-chat-dock {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 400px;
+  height: var(--office-height);
+  min-width: 0;
+  overflow: hidden;
+}
+.office-chat-dock > .chat { width: 100%; max-width: none; height: 100%; min-width: 0; margin: 0; }
+
+/* The room keeps its 1680x1056 world aspect and the handoff's darker floor. Its width cap comes from Office's measured
+   height, while the first limit remains the actual main-content width (after rail and padding). */
+.office-stage {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  width: min(100%, var(--office-stage-width));
+  aspect-ratio: 1680 / 1056;
+  background: #17130f;
+  border: 1px solid var(--line, #2c2d31);
+  border-radius: 8px;
+  /* clip, not hidden: a hidden box still scrolls to bring a focused object button outside the visible room into view. */
+  overflow: clip;
+  flex-shrink: 0;
+}
+.office-stage:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* The count objects are Pixi sprites (pixi/roomProps.ts) with their own hit areas under the characters; each also has one
+   transparent button over it for its name and the keyboard, which moves with the room and lets pointer input reach the canvas. */
+.office-room-props-layer { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.office-room-props { position: absolute; inset: 0; pointer-events: none; }
+.office-room-prop { position: absolute; box-sizing: border-box; padding: 0; border: 0; border-radius: 4px; background: transparent; pointer-events: none; }
+.office-room-prop:focus-visible { outline: 2px solid #7fb8ff; outline-offset: 1px; }
+/* The chip names the object and its counts while the pointer is over the object (the scene reports it) or it has focus.
+   It is laid out while hidden, so RoomPropButtons can measure it and place it next to the visible part of its object. */
+.office-room-prop-chip {
+  visibility: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  font: 600 11px/1.2 system-ui, sans-serif;
+  color: #fff;
+  background: rgba(16, 18, 24, .9);
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 4px;
+  padding: 1px 4px;
+  pointer-events: none;
+}
+.office-room-prop-hover .office-room-prop-chip,
+.office-room-prop:focus-visible .office-room-prop-chip { visibility: visible; }
+/* Phone layout (PHONE_QUERY): one slim line under the room, an icon and the number per object; a zero is dimmed. */
+/* Eight buttons fit one line down to 360 px with three-digit counts: they never shrink, and the row spreads them. */
+.office-count-row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; margin: 6px 0 0; padding: 0 2px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.office-count { display: inline-flex; flex: none; align-items: center; justify-content: center; gap: 2px; min-width: 32px; height: 44px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text); font: 600 12px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.office-count:focus-visible { outline: 2px solid #7fb8ff; }
+/* A touch pointer's count buttons are 44 px wide at least, whatever the number (0 or 99+). */
+@media (pointer: coarse) { .office-count { min-width: 44px; } }
+.office-count-icon { width: 16px; height: 14px; object-fit: contain; image-rendering: pixelated; }
+.office-count[data-office-count="questions"] .office-count-icon { width: 20px; height: 20px; }
+.office-count[data-office-count="in-review"] .office-count-icon { width: 21px; height: 14px; }
+.office-count-zero { color: var(--muted); }
+.office-count-zero .office-count-icon { opacity: .45; }
+/* The stage pans the room under a drag or a wheel, so the page does not scroll with it. */
+.office-stage.office-stage-pixi { touch-action: none; overscroll-behavior: contain; }
+.office-pixi-canvas { position: absolute; inset: 0; }
+.office-pixi-dim { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: rgba(10, 12, 34, 0.28); transition: opacity 2s; }
+/* One transparent button per character carries its name and the keyboard route; pointer input reaches the canvas hit area. */
+.office-pixi-world-overlays { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.office-pixi-hits { position: absolute; inset: 0; pointer-events: none; }
+.office-char.office-pixi-char { transform: none; pointer-events: none; background: transparent; border-radius: 6px; }
+.office-char.office-pixi-char:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+
+/* ===== CHARACTERS ===== */
+
+.office-char {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -100%);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.office-char:disabled { cursor: default; }
+
+/* ===== LABELS =====
+   Every label is drawn in this one layer, above the room and above every character, so a desk or a plant in front of a
+   character can never cover its text. The boxes are positioned by layoutLabels(), which also keeps two labels from
+   landing on each other; a label that had to move keeps a leader line back to its character. */
+
+.office-labels {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.office-label-leaders {
+  position: absolute;
+  inset: 0;
+}
+
+.office-label-leaders line {
+  stroke: rgba(255, 255, 255, 0.65);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.9));
+}
+
+.office-char-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  white-space: nowrap;
+  font-family: ui-monospace, monospace;
+  color: #e8e6e3;
+  background: rgba(10, 10, 15, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 0 4px;
+  line-height: 1.5;
+}
+
+/* A critic's and the orchestrator's labels read visibly differently from a worker's. */
+.office-char-label.critic { color: #f0a95c; border-color: #e67e22; }
+.office-char-label.orchestrator { color: #ff8a8a; border-color: #ff4444; }
+
+/* ===== PHONE BADGES =====
+   In the phone layout the stage draws one badge per character instead of a label (BadgeLayer): the fill is the repository,
+   the two letters the harness. The layer ignores the pointer so a pan still starts on the room; each badge takes it. */
+.office-badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font: 700 10px/1 ui-monospace, monospace;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+/* A critic wears a white ring outside a dark one, so it reads on any fill and on the night room. */
+.office-badge-critic { box-shadow: 0 0 0 2px #ffffff, 0 0 0 3px rgba(0, 0, 0, 0.8); }
+/* The orchestrator has no repository: a gold pill. */
+.office-badge-orchestrator { border-radius: 999px; border-color: #111827; }
+/* On a touch pointer each badge carries its tap target, a span 44 px square about the badge's centre that BadgeLayer
+   places and fits inside the stage, so a badge at the stage's edge keeps a whole target the stage does not clip. It
+   draws nothing, so the badge looks the same; where two targets overlap, the badge whose centre is nearest opens. */
+.office-badge-target { position: absolute; }
+
+/* The phone card for one character, above the tab bar. */
+.office-card {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: calc(var(--tabbar-h, 56px) + env(safe-area-inset-bottom) + 8px);
+  z-index: 60;
+  padding: 10px 12px 12px;
+  background: var(--surface, #16161c);
+  color: var(--text, #e8e6e3);
+  border: 1px solid var(--line, #2a2a33);
+  border-radius: 12px;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45);
+}
+.office-card-head { display: flex; align-items: center; gap: 8px; }
+.office-card-badge { position: static; flex: 0 0 auto; width: 24px; height: 16px; cursor: default; }
+.office-card-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.office-card-close { flex: 0 0 auto; width: 44px; height: 44px; margin: -10px -8px -10px 0; background: none; border: 0; color: inherit; font-size: 22px; cursor: pointer; }
+.office-card-fields { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 12px; margin: 6px 0 10px; font-size: 13px; }
+.office-card-fields > div { display: contents; }
+.office-card-fields dt { color: var(--muted, #9aa0a6); }
+.office-card-fields dd { margin: 0; overflow-wrap: anywhere; }
+.office-card-link { width: 100%; min-height: 44px; }
+
+/* The key under the phone room: the orchestrator's gold pill, each present repository colour and harness mark. Office
+   centres its children, so without the max-width a key wider than the room overflowed both edges; capped, it wraps onto
+   more lines, so every entry stays visible without a sideways scroll. */
+.office-badge-key { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 6px 0 0; max-width: 100%; box-sizing: border-box; font-size: 11px; color: var(--muted, #9aa0a6); }
+.office-key-item { display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.office-key-item b { color: var(--text, #e8e6e3); font-family: ui-monospace, monospace; }
+.office-key-unknown { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 14px; height: 12px; border-radius: 2px; font: 700 9px/1 ui-monospace, monospace; }
+.office-key-swatch { display: inline-block; flex: 0 0 auto; width: 10px; height: 10px; border-radius: 2px; border: 1px solid rgba(0, 0, 0, 0.6); }
+/* The orchestrator badge's gold pill and border, small. */
+.office-key-orchestrator { display: inline-block; flex: 0 0 auto; width: 16px; height: 10px; box-sizing: border-box; border-radius: 999px; border: 1px solid #111827; }
+
+/* The socket is down: the room keeps its last-known characters, dimmed and standing still, until a fresh snapshot arrives. */
+.office-stage.office-offline { opacity: 0.5; }
+
+.office-empty {
+  color: var(--muted, #9aa0a6);
+}
+
+/* The room is drawn but the feed is down: the note reads as a warning, not as a settled empty office. */
+.office-unavailable {
+  color: var(--warn, #c96a5c);
+}
+
+/* Keep the reconnecting note below and aligned with the stage when Chat does not need a dock column. */
+.office-reconnecting:not(.office-with-chat) {
+  display: grid;
+  grid-template-columns: min(100%, var(--office-stage-width));
+  grid-template-rows: auto auto;
+  align-content: start;
+  justify-content: center;
+}
+.office-reconnecting:not(.office-with-chat) > .office-stage { grid-column: 1; grid-row: 1; width: 100%; }
+.office-reconnecting:not(.office-with-chat) > .office-unavailable { grid-column: 1; grid-row: 2; }
+
+/* The outage banner takes a fixed row above Office; the Office box gets the height that remains in main. */
+@media (min-width: 768px) and (pointer: fine), (min-width: 768px) and (pointer: none), (min-width: 768px) and (min-height: 501px) {
+  main:has(> .banner-warn):has(> .office-hold:not([hidden])) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  main:has(> .banner-warn):has(> .office-hold:not([hidden])) > .banner-warn { flex: none; }
+  main:has(> .banner-warn):has(> .office-hold:not([hidden])) > .office-hold { flex: 1; min-height: 0; }
+  main:has(> .banner-warn):has(> .office-hold:not([hidden])) > .office-hold > .office-home { height: 100%; min-height: 0; }
+}
+
+@media (max-width: 767px), (pointer: coarse) and (max-height: 500px) {
+  .office-home { height: auto; }
+  .office-home > .office { flex: none; height: auto; }
+  .office {
+    height: auto;
+  }
+  .office-stage {
+    width: 100%;
+  }
+  .office-reconnecting:not(.office-with-chat) { grid-template-columns: 100%; }
+  .office-reconnecting:not(.office-with-chat) > .office-count-row { grid-column: 1; grid-row: 2; }
+  .office-reconnecting:not(.office-with-chat) > .office-unavailable { grid-row: 3; }
+}

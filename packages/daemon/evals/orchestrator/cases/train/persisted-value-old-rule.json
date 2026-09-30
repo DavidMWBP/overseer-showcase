@@ -1,0 +1,337 @@
+{
+  "id": "persisted-value-old-rule",
+  "source": {
+    "entry": "2026-09-18 — acme-portal-sample-017 (#9333): the old rule's stored values are part of the change",
+    "quote": "A bead that changes the precedence or the meaning of a persisted value (a localStorage key, a cookie, a saved account field) names the existing keys in its description, states what happens to values written under the old rule (kept, migrated, or reset once), and its Definition of Done includes one check run with such a value already present. Code that is right on a clean profile is not evidence."
+  },
+  "input": "[repo: webapp] When nobody has picked a theme, follow the OS setting (prefers-color-scheme) instead of always starting light. Today src/theme/useTheme.ts writes \"light\" to localStorage[\"webapp-theme\"] on the first load, and the theme picker in the settings menu writes the picked theme to the same key. A stored \"light\" can be either kind, so on the first load after this ships clear the key once when it holds \"light\", and mark that the clearing ran with localStorage[\"webapp-theme-v2\"] = \"1\" so it never runs again; a stored \"dark\" can only be a pick and stays. From then on only the picker writes the key, a picked theme wins over the OS setting, and while nothing is picked the app follows OS changes live, without a reload. Keep the existing two-option picker display: while no theme is saved, the currently active OS theme remains selected. Do not add a \"System\" option. Treat the OS-following behavior and one-time clearing of old \"light\" as one request. Selecting either option, including the OS-derived theme that is already selected, counts as a pick and pins it against later OS changes.",
+  "state": {
+    "repos": [
+      {
+        "id": "webapp",
+        "base_branch": "main",
+        "merge_mode": "local-merge",
+        "verify_command": "pnpm test"
+      }
+    ],
+    "batches": []
+  },
+  "fixtures": {
+    "default": {
+      "reply": {
+        "ok": true
+      }
+    },
+    "calls": [
+      {
+        "tool": "list_repos",
+        "reply": [
+          {
+            "id": "webapp",
+            "path": "C:\\eval\\repos\\webapp",
+            "base_branch": "main",
+            "verify_command": "pnpm test",
+            "merge_mode": "local-merge",
+            "worker_limit": 3,
+            "review_rounds": 2,
+            "setup_command": "pnpm install",
+            "verify_suspect": null,
+            "batch_approver": "user",
+            "review_command": null,
+            "model_filter": null,
+            "verification": "runs verify command `pnpm test` in the bead's worktree after the worker ends"
+          }
+        ]
+      },
+      {
+        "tool": "list_tasks",
+        "args": {
+          "repo": "webapp"
+        },
+        "reply": []
+      },
+      {
+        "tool": "list_tasks",
+        "args": {
+          "repo": "webapp"
+        },
+        "reply": [
+          {
+            "id": "webapp-t6h",
+            "title": "Theme: follow the OS setting while no theme is picked, live",
+            "description": "Follow prefers-color-scheme while no theme is picked. Keep the existing theme picker display. The Definition of Done includes the stored \"light\" case written by the old first-load rule.",
+            "status": "open",
+            "priority": 2,
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ],
+            "notes": "",
+            "assignee": null,
+            "closed_at": null,
+            "dependency_count": 0,
+            "column": "ready"
+          },
+          {
+            "id": "webapp-t7h",
+            "title": "Theme: clear a stored \"light\" once, marked by webapp-theme-v2",
+            "description": "On the first load after this ships, clear localStorage[\"webapp-theme\"] once when it holds \"light\" and set localStorage[\"webapp-theme-v2\"] = \"1\". Keep a stored \"dark\". Test a stored \"light\" value from the old first-load rule and a later picked \"light\".",
+            "status": "open",
+            "priority": 2,
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ],
+            "notes": "",
+            "assignee": null,
+            "closed_at": null,
+            "dependency_count": 1,
+            "column": "blocked"
+          }
+        ]
+      },
+      {
+        "tool": "list_batches",
+        "args": {
+          "repo": "webapp",
+          "batch_id": "webapp-b35-q9tz"
+        },
+        "reply": {
+          "id": "webapp-b35-q9tz",
+          "repo_id": "webapp",
+          "title": "Follow the OS theme when no theme is picked",
+          "branch": "feature/theme-follows-os",
+          "base_branch": "main",
+          "status": "open",
+          "note": null,
+          "mr_url": null,
+          "conflict_files": null,
+          "created_at": "2026-09-18T08:00:00.000Z",
+          "updated_at": "2026-09-18T09:30:00.000Z",
+          "merged_at": null,
+          "origin_chat_id": null,
+          "merged_commit": null,
+          "history": null,
+          "setup_at": null,
+          "waiting_on": null,
+          "overlap_files": null,
+          "refresh_from": null,
+          "refresh_head": null,
+          "last_pipeline_id": null,
+          "last_pipeline_outcome": null,
+          "review_check": null,
+          "linked_chat_ids": [],
+          "beads_total": 2,
+          "beads_done": 0,
+          "beads_closed": 0,
+          "status_label": "open"
+        }
+      },
+      {
+        "tool": "list_batches",
+        "args": {
+          "repo": "webapp"
+        },
+        "reply": []
+      },
+      {
+        "tool": "create_batch",
+        "args": {
+          "repo": "webapp"
+        },
+        "reply": {
+          "batch_id": "webapp-b35-q9tz",
+          "branch": "feature/theme-follows-os",
+          "base_branch": "main"
+        }
+      },
+      {
+        "tool": "bd",
+        "args": {
+          "args": [
+            "show",
+            "webapp-t6h"
+          ]
+        },
+        "reply": [
+          {
+            "id": "webapp-t6h",
+            "title": "Theme: follow the OS setting while no theme is picked, live",
+            "description": "Follow prefers-color-scheme while no theme is picked. Keep the existing theme picker display. The Definition of Done includes the stored \"light\" case written by the old first-load rule.",
+            "status": "open",
+            "priority": 2,
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ],
+            "notes": "",
+            "assignee": null,
+            "closed_at": null,
+            "dependency_count": 0,
+            "column": "ready",
+            "issue_type": "task",
+            "created_at": "2026-09-25T12:40:11Z",
+            "updated_at": "2026-09-25T12:40:11Z",
+            "dependent_count": 0,
+            "comment_count": 0
+          }
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": {
+          "args": [
+            "show",
+            "webapp-t7h"
+          ]
+        },
+        "reply": [
+          {
+            "id": "webapp-t7h",
+            "title": "Theme: clear a stored \"light\" once, marked by webapp-theme-v2",
+            "description": "On the first load after this ships, clear localStorage[\"webapp-theme\"] once when it holds \"light\" and set localStorage[\"webapp-theme-v2\"] = \"1\". Keep a stored \"dark\". Test a stored \"light\" value from the old first-load rule and a later picked \"light\".",
+            "status": "open",
+            "priority": 2,
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ],
+            "notes": "",
+            "assignee": null,
+            "closed_at": null,
+            "dependency_count": 1,
+            "column": "blocked",
+            "issue_type": "task",
+            "created_at": "2026-09-25T12:40:11Z",
+            "updated_at": "2026-09-25T12:40:11Z",
+            "dependent_count": 0,
+            "comment_count": 0
+          }
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": {
+          "args": [
+            "create"
+          ]
+        },
+        "reply": [
+          {
+            "id": "webapp-t6h",
+            "status": "open",
+            "title": "Theme: follow the OS setting while no theme is picked, live",
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ]
+          }
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": {
+          "args": [
+            "create"
+          ]
+        },
+        "reply": [
+          {
+            "id": "webapp-t7h",
+            "status": "open",
+            "title": "Theme: clear a stored \"light\" once, marked by webapp-theme-v2",
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ]
+          }
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": {
+          "args": [
+            "list",
+            "--all"
+          ]
+        },
+        "reply": [
+          {
+            "id": "webapp-t6h",
+            "title": "Theme: follow the OS setting while no theme is picked, live",
+            "description": "Follow prefers-color-scheme while no theme is picked. Keep the existing theme picker display. The Definition of Done includes the stored \"light\" case written by the old first-load rule.",
+            "status": "open",
+            "priority": 2,
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ],
+            "notes": "",
+            "assignee": null,
+            "closed_at": null,
+            "dependency_count": 0,
+            "column": "ready",
+            "issue_type": "task",
+            "created_at": "2026-09-25T12:40:11Z",
+            "updated_at": "2026-09-25T12:40:11Z",
+            "dependent_count": 0,
+            "comment_count": 0
+          },
+          {
+            "id": "webapp-t7h",
+            "title": "Theme: clear a stored \"light\" once, marked by webapp-theme-v2",
+            "description": "On the first load after this ships, clear localStorage[\"webapp-theme\"] once when it holds \"light\" and set localStorage[\"webapp-theme-v2\"] = \"1\". Keep a stored \"dark\". Test a stored \"light\" value from the old first-load rule and a later picked \"light\".",
+            "status": "open",
+            "priority": 2,
+            "labels": [
+              "overseer:batch:webapp-b35-q9tz"
+            ],
+            "notes": "",
+            "assignee": null,
+            "closed_at": null,
+            "dependency_count": 1,
+            "column": "blocked",
+            "issue_type": "task",
+            "created_at": "2026-09-25T12:40:11Z",
+            "updated_at": "2026-09-25T12:40:11Z",
+            "dependent_count": 0,
+            "comment_count": 0
+          }
+        ]
+      },
+      {
+        "tool": "spawn_worker",
+        "args": {
+          "bead_id": "webapp-t6h"
+        },
+        "reply": {
+          "session_id": "1f3a5c7e-9b2d-4f6a-8e0c-2d4f6b8a0c3e",
+          "bead_id": "webapp-t6h",
+          "harness": "codex",
+          "model": "gpt-5.6-terra",
+          "tier": "standard",
+          "batch_id": "webapp-b35-q9tz"
+        }
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    {
+      "kind": "arg_contains",
+      "tool": "bd",
+      "arg": "args",
+      "phrase": "webapp-theme"
+    },
+    {
+      "kind": "called",
+      "tool": "spawn_worker"
+    },
+    {
+      "kind": "rubric",
+      "line": "The task's Definition of Done includes a check that starts with a value already stored under the webapp-theme key (written by the old first-load rule) and shows what happens to it."
+    },
+    {
+      "kind": "not_called",
+      "tool": "ask_user"
+    }
+  ]
+}

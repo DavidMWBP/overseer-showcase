@@ -1,0 +1,34 @@
+{
+  "name": "@overseer/daemon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "OVERSEER_WATCH=1 tsx watch --disable-warning=ExperimentalWarning src/index.ts",
+    "start": "tsx --disable-warning=ExperimentalWarning src/index.ts",
+    "test": "tsx scripts/test.mts fast",
+    "test:slow": "tsx scripts/test.mts slow",
+    "eval:prompt": "tsx --disable-warning=ExperimentalWarning scripts/prompt-eval.ts",
+    "eval:loop": "tsx --disable-warning=ExperimentalWarning scripts/prompt-loop.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "record:claude": "tsx scripts/record.ts claude",
+    "record:opencode": "tsx scripts/record.ts opencode",
+    "record:codex": "tsx scripts/record.ts codex"
+  },
+  "dependencies": {
+    "@fastify/websocket": "^11.0.0",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "@overseer/shared": "workspace:*",
+    "fastify": "^5.2.0",
+    "web-push": "^3.6.7",
+    "yaml": "^2.8.1",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/web-push": "^3.6.4",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

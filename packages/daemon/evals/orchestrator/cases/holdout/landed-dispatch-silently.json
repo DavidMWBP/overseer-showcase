@@ -1,0 +1,46 @@
+{
+  "id": "landed-dispatch-silently",
+  "source": {
+    "entry": "2026-09-16 — overseer-b65-un2y retrospective: chat carries asks, not narration",
+    "quote": "The orchestrator writes to the user only for a question, a decision, a failure the user must act on, or a finished request; it does not recap running work."
+  },
+  "input": "[Overseer] webapp-a1c landed on feature/csv-import (1/3 beads done; verify command `pnpm test` passed; reviewed by claude fable)",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b42-v3ne", "title": "Import contacts from CSV", "branch": "feature/csv-import", "status": "open", "total": 3, "done": 1 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-a1c", "title": "CSV parser for contact rows", "status": "closed", "labels": ["overseer:batch:webapp-b42-v3ne", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-a2d", "title": "Import contacts endpoint", "status": "open", "labels": ["overseer:batch:webapp-b42-v3ne"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-a3e", "title": "Import button and preview on the contacts page", "status": "open", "labels": ["overseer:batch:webapp-b42-v3ne"], "column": "blocked" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-a2d"] },
+        "reply": [{ "id": "webapp-a2d", "title": "Import contacts endpoint", "status": "open", "labels": ["overseer:batch:webapp-b42-v3ne"], "description": "POST /api/contacts/import takes a CSV upload, parses it with the parser from webapp-a1c (src/import/contactsCsv.ts) and creates the contacts in one transaction; a row that fails to parse rejects the whole file with its line number.\n\nDefinition of Done: `pnpm vitest run src/api/contactsImport.test.ts` passes with a valid file, an empty file and a file with a bad row; `pnpm typecheck` passes.", "notes": "" }]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b42-v3ne", "repo_id": "webapp", "title": "Import contacts from CSV", "branch": "feature/csv-import", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-16T08:00:00.000Z", "updated_at": "2026-09-16T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 3, "beads_done": 1, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "spawn_worker",
+        "args": { "bead_id": "webapp-a2d" },
+        "reply": { "session_id": "c2e4a6c8-0d2f-4c4e-9a6c-8e0a2c4e6a9b", "bead_id": "webapp-a2d", "harness": "codex", "model": "gpt-5.6-terra", "tier": "standard", "batch_id": "webapp-b42-v3ne" }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "spawn_worker", "args": { "bead_id": "webapp-a2d" } },
+    { "kind": "arg_contains", "tool": "spawn_worker", "arg": "batch_id", "phrase": "webapp-b42-v3ne" },
+    { "kind": "no_message" }
+  ]
+}

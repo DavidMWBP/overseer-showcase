@@ -1,0 +1,41 @@
+{
+  "name": "@overseer/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "test:discussions-layout": "node test-only/discussions-layout.playwright.js",
+    "test:review-table-layout": "node test-only/review-table-layout.playwright.js",
+    "test:chat-layout": "node test-only/chat-layout.playwright.js",
+    "test:office-chat-dock": "node test-only/office-chat-dock.playwright.js",
+    "test:office-offline": "node test-only/office-offline.playwright.js",
+    "test:office-pixi-layout": "node test-only/office-pixi-layout.playwright.js",
+    "test:office-critic-capture": "node test-only/office-critic-capture.playwright.js",
+    "test:office-strip-layout": "node test-only/office-strip-layout.playwright.js",
+    "test:programs-layout": "node test-only/programs-layout.playwright.js",
+    "test:toast-layout": "node test-only/toast-layout.playwright.js",
+    "typecheck": "tsc -p tsconfig.json && tsc -p test-only/tsconfig.json"
+  },
+  "dependencies": {
+    "@overseer/shared": "workspace:*",
+    "@shimmer-from-structure/react": "2.4.6",
+    "pixi.js": "^8.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "jsdom": "^26.0.0",
+    "playwright": "^1.63.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.0"
+  }
+}

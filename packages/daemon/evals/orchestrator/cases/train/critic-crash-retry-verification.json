@@ -1,0 +1,49 @@
+{
+  "id": "critic-crash-retry-verification",
+  "source": {
+    "entry": "2026-09-18 — overseer-b80-s45y: an account-exhausted review round is not a failed bead",
+    "quote": "A reopen whose reason is an unavailable account or a crashed critic is not a work failure: the commits are already on the bead branch, so it is re-verified with `retry_verification`, never re-dispatched to a worker. Re-dispatch only when the reopen names missing commits, a failed check or a merge conflict."
+  },
+  "input": "[Overseer] webapp-ht1 reopened: its review round on codex could not be completed: the critic session failed: codex exited with code 1",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b29-r3vw", "title": "Paginate the audit log", "branch": "feature/paginate-audit-log", "status": "open", "total": 2, "done": 1 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-hq0", "title": "Audit log API returns pages of 50", "status": "closed", "labels": ["overseer:batch:webapp-b29-r3vw", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-ht1", "title": "Audit log view loads the next page on scroll", "status": "open", "labels": ["overseer:batch:webapp-b29-r3vw"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-ht1"] },
+        "reply": [{ "id": "webapp-ht1", "title": "Audit log view loads the next page on scroll", "status": "open", "labels": ["overseer:batch:webapp-b29-r3vw"], "description": "src/audit/AuditLog.vue loads the next page of 50 when the list is scrolled to its end, using the paged API from webapp-hq0.\n\nDefinition of Done: `pnpm vitest run src/audit/AuditLog.test.ts` passes; `pnpm typecheck` passes.", "notes": "Review round on codex failed: the critic session failed: codex exited with code 1" }]
+      },
+      {
+        "tool": "worker_status",
+        "args": { "bead_id": "webapp-ht1" },
+        "reply": { "session_id": "0b2d4f6a-8c0e-4a2c-9e4f-6a8c0e2a4c7f", "harness": "claude", "account": "a-personal", "account_name": "Secondary Account", "account_label": null, "state": "ended", "last_text": "Committed 3b9e21f: the audit log loads the next page on scroll. Check: pnpm vitest run src/audit/AuditLog.test.ts - PASS - 11 passed. Check: pnpm typecheck - PASS.", "end_reason": null, "files": ["src/audit/AuditLog.vue", "src/audit/AuditLog.test.ts"], "cost": 1.84, "verify_status": "pass", "started_at": "2026-09-25T08:02:40.000Z", "ended_at": "2026-09-25T08:21:05.000Z" }
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b29-r3vw", "repo_id": "webapp", "title": "Paginate the audit log", "branch": "feature/paginate-audit-log", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-18T08:00:00.000Z", "updated_at": "2026-09-18T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 1, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "retry_verification",
+        "args": { "bead_id": "webapp-ht1" },
+        "reply": { "verifying": true, "bead_id": "webapp-ht1" }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "retry_verification", "args": { "bead_id": "webapp-ht1" } },
+    { "kind": "not_called", "tool": "spawn_worker" }
+  ]
+}

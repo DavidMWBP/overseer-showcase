@@ -1,0 +1,44 @@
+{
+  "id": "bead-not-converging",
+  "source": {
+    "entry": "2026-09-18 — acme-portal-sample-015: a bead that does not converge is not re-dispatched again",
+    "quote": "The orchestrator counts re-dispatches per bead, not per surface. After the third re-dispatch of the same bead it stops and puts the bead to the user: what is left, what it has cost so far, and the choice between splitting it, landing it as it is with `accept_review`, or closing it."
+  },
+  "input": "[Overseer] acme-portal-sample-012 awaits a decision: review round 2 of 2 (claude fable) still has findings:\n- [must] src/records/RecordList.vue: At 430px the amount column truncates the unit label (\"1,204.50 EU…\"); the column needs to fit the longest code, or wrap below the amount.\nTotals so far: 5 worker sessions, 6 critic sessions, 4 re-dispatches, cost $38.90 (reported). Discuss the findings with the user. Then either call spawn_worker with instructions that address them (a fresh set of review rounds follows) or accept_review(repo, bead_id, note) to land the work as it is, with the user's reason as the note.",
+  "state": {
+    "repos": [{ "id": "acme-portal", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "acme-portal-sample-015", "title": "#9322 Tablet tier", "branch": "feature/322-tablet-tier", "status": "open", "total": 4, "done": 3 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "acme-portal-sample-012"] },
+        "reply": [{ "id": "acme-portal-sample-012", "title": "Record list at tablet widths", "status": "open", "labels": ["overseer:batch:acme-portal-sample-015"], "description": "Between 430px and 1023px the record list shows the name, balance and activity columns; the actions move into a row menu.\n\nDefinition of Done: `pnpm vitest run src/records/RecordList.test.ts` passes; screenshots at 430, 768 and 1023px show the three columns.", "notes": "Re-dispatched to codex\nRe-dispatched to claude\nReview round 2 of 2 (codex gpt-5.6-sol) still has findings:\n- [must] src/records/RecordRow.vue: At 768px the last activity column overlaps the row menu button.\nRe-dispatched to claude\nRe-dispatched to claude\nReview round 2 of 2 (claude fable) still has findings:\n- [must] src/records/RecordList.vue: At 430px the amount column truncates the unit label (\"1,204.50 EU…\"); the column needs to fit the longest code, or wrap below the amount." }]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "acme-portal" },
+        "reply": [
+          { "id": "webapp-k2p", "title": "Tablet breakpoint token", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-015", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-m8c", "title": "Tablet header layout", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-015", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-aw6", "title": "68px icon rail for the sidebar at tablet widths", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-015", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "acme-portal-sample-012", "title": "Record list at tablet widths", "status": "open", "labels": ["overseer:batch:acme-portal-sample-015"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "ask_user" },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "not_called", "tool": "accept_review" },
+    { "kind": "rubric", "line": "The question says what is left on acme-portal-sample-012 and what it has cost so far ($38.90 or four re-dispatches), and offers the choice between splitting it, landing it as it is, or closing it." }
+  ]
+}

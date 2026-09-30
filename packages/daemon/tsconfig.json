@@ -1,0 +1,1 @@
+{ "extends": "../../tsconfig.base.json", "compilerOptions": { "types": ["node"] }, "include": ["src", "scripts/discussion-eval.ts", "scripts/prompt-eval.ts", "scripts/prompt-loop.ts", "scripts/evalLive.ts"] }

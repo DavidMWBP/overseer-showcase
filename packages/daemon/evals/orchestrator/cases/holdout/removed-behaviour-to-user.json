@@ -1,0 +1,47 @@
+{
+  "id": "removed-behaviour-to-user",
+  "source": {
+    "entry": "2026-09-18 — acme-portal-sample-017 (#9333): a removed behaviour is a user decision, not a Known limit",
+    "quote": "When a review finding or a worker report names a behaviour the previous release had and this change removes or degrades, the orchestrator does not write it into the review note as an accepted limit: it puts the behaviour to the user as a decision with `ask_user` before requesting review, and requests review with their answer."
+  },
+  "input": "[Overseer] webapp-6jh landed on feature/375-locale-follows-browser (3/3 beads done; verify command `pnpm lint` passed; reviewed by claude fable; review findings landed with (round 1):\n- [should] src/i18n/boot.ts: The saved account language is now applied but no longer stored. So when a signed-in person's account language differs from the browser language, every reload first shows the browser language, then switches once the current user loads. Before this change, the first screen already used the saved language.)",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "webapp-b41-u8lb", "title": "#9375 Follow the browser language when nothing is saved", "branch": "feature/375-locale-follows-browser", "status": "open", "total": 3, "done": 3 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b41-u8lb", "repo_id": "webapp", "title": "#9375 Follow the browser language when nothing is saved", "branch": "feature/375-locale-follows-browser", "base_branch": "dev", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-18T08:00:00.000Z", "updated_at": "2026-09-18T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 3, "beads_done": 3, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-4fg", "title": "Detect the browser language at boot", "status": "closed", "labels": ["overseer:batch:webapp-b41-u8lb", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-5gh", "title": "Signup page uses the browser language", "status": "closed", "labels": ["overseer:batch:webapp-b41-u8lb", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-6jh", "title": "Apply the account language once the current user loads", "status": "closed", "labels": ["overseer:batch:webapp-b41-u8lb", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-6jh"] },
+        "reply": [{ "id": "webapp-6jh", "title": "Apply the account language once the current user loads", "status": "closed", "close_reason": "merged into feature/375-locale-follows-browser", "labels": ["overseer:batch:webapp-b41-u8lb", "overseer:merged"], "description": "When the current user loads, apply their saved account language over the browser language. Stop writing the locale to localStorage['dashboard2-locale'].\n\nDefinition of Done: `pnpm vitest run src/i18n/boot.test.ts` passes; `pnpm lint` passes.", "notes": "Review findings landed with (round 1):\n- [should] src/i18n/boot.ts: The saved account language is now applied but no longer stored. So when a signed-in person's account language differs from the browser language, every reload first shows the browser language, then switches once the current user loads. Before this change, the first screen already used the saved language." }]
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "ask_user" },
+    { "kind": "not_called", "tool": "request_batch_review" },
+    { "kind": "rubric", "line": "The question tells the user that a signed-in person whose account language differs from the browser language now sees the browser language first on every reload, which the previous release did not do, and asks whether to accept that or fix it." }
+  ]
+}

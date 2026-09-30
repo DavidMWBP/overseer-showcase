@@ -1,0 +1,43 @@
+{
+  "id": "stall-subagent-working",
+  "source": {
+    "entry": "2026-09-18 — acme-portal-sample-015: when nothing is needed, write nothing",
+    "quote": "This extends the existing entry \"chat carries asks, not narration\" (docs/lessons.md, 2026-09-16). A notice that needs no action gets no message at all. Lines like \"nothing needed from you\", \"no action required\" or an acknowledgement of a notice are themselves notifications on the user's phone; end the turn silently instead."
+  },
+  "input": "[Overseer] webapp-7kq has shown no sign of activity for 16 minutes; its worker (opencode deepseek/deepseek-flash) last said: \"Running the unit suite in a task sub-agent while I finish the form validation.\"; quiet log for 16 minutes, but the worktree changed 2 minutes ago; a sub-agent may be working Call worker_status for the bead. If it is genuinely stuck, interrupt_worker with the reason; if it is waiting on something slow, leave it. Do not re-dispatch without asking the user. The opencode adapter ends a turn that prints nothing for 20 minutes after its last event and after every running tool call's own timeout by itself, so a silent opencode session can be left until then rather than interrupted.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b14-q2rd", "title": "Signup form validation", "branch": "feature/signup-form-validation", "status": "open", "total": 2, "done": 1 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "worker_status",
+        "args": { "bead_id": "webapp-7kq" },
+        "reply": { "session_id": "3f0c9a1e-5b7d-4c2a-9e61-0d4b8f2a7c11", "harness": "opencode", "account": "a-deepseek", "account_name": "DeepSeek", "account_label": null, "state": "running", "last_text": "Running the unit suite in a task sub-agent while I finish the form validation.", "end_reason": null, "files": ["src/signup/validate.ts", "src/signup/validate.test.ts", "src/signup/SignupForm.tsx"], "cost": null, "verify_status": null, "started_at": "2026-09-25T12:02:11.000Z", "ended_at": null }
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-3mf", "title": "Validation rules for the signup fields", "status": "closed", "labels": ["overseer:batch:webapp-b14-q2rd", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-7kq", "title": "Show validation errors on the signup form", "status": "in_progress", "labels": ["overseer:batch:webapp-b14-q2rd", "overseer:running"], "column": "running" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b14-q2rd", "repo_id": "webapp", "title": "Signup form validation", "branch": "feature/signup-form-validation", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-18T08:00:00.000Z", "updated_at": "2026-09-18T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 1, "beads_closed": 0, "status_label": "open" }]
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "worker_status", "args": { "bead_id": "webapp-7kq" } },
+    { "kind": "not_called", "tool": "interrupt_worker" },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "not_called", "tool": "message_worker" },
+    { "kind": "not_called", "tool": "ask_user" },
+    { "kind": "no_message" }
+  ]
+}

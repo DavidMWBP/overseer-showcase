@@ -1,0 +1,56 @@
+{
+  "id": "shared-docs-chain",
+  "source": {
+    "entry": "2026-09-18 — overseer-b85-bwp3: shared documentation surfaces are a shared file",
+    "quote": "Documentation surfaces that a repository's conventions say every task must update are a shared file for the rule that chains tasks touching the same file, and are easy to miss because a batch can look parallel on its code while every task updates the same documents: either chain the tasks so each branches from a batch branch carrying the previous task's documentation, or give the documentation update to a single closing task and say so in every other task's description."
+  },
+  "input": "[repo: webapp] Add a task to the shortcuts batch: `g i` opens the inbox, in src/inbox/shortcut.ts. Like every shortcut it gets its row in the Keyboard shortcuts table of README.md.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b28-k7sc", "title": "Go-to keyboard shortcuts", "branch": "feature/go-to-shortcuts", "status": "open", "total": 1, "done": 0 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-d4r", "title": "`g s` opens the settings", "status": "in_progress", "labels": ["overseer:batch:webapp-b28-k7sc", "overseer:running"], "column": "running" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-d4r"] },
+        "reply": [{ "id": "webapp-d4r", "title": "`g s` opens the settings", "status": "in_progress", "labels": ["overseer:batch:webapp-b28-k7sc", "overseer:running"], "description": "Add the `g s` shortcut in src/settings/shortcut.ts: it opens the settings page from anywhere outside a text field.\n\nDocumentation: add its row to the Keyboard shortcuts table in README.md, in the table's order.\n\nDefinition of Done: `pnpm vitest run src/settings/shortcut.test.ts` passes; `pnpm typecheck` passes; README.md has the new row.", "notes": "" }]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b28-k7sc", "repo_id": "webapp", "title": "Go-to keyboard shortcuts", "branch": "feature/go-to-shortcuts", "base_branch": "main", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-18T08:00:00.000Z", "updated_at": "2026-09-18T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 1, "beads_done": 0, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["create"] },
+        "reply": [{ "id": "webapp-e6n", "status": "open", "title": "`g i` opens the inbox", "labels": ["overseer:batch:webapp-b28-k7sc"] }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["dep", "add", "webapp-e6n", "webapp-d4r"] },
+        "reply": { "issue_id": "webapp-e6n", "depends_on_id": "webapp-d4r", "type": "blocks" }
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["dep", "list", "webapp-e6n"] },
+        "reply": [{ "id": "webapp-d4r", "status": "in_progress", "title": "`g s` opens the settings" }]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [{"id": "webapp-d4r", "title": "`g s` opens the settings", "status": "in_progress", "labels": ["overseer:batch:webapp-b28-k7sc", "overseer:running"], "column": "running", "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}, {"id": "webapp-e6n", "title": "`g i` opens the inbox", "status": "open", "labels": ["overseer:batch:webapp-b28-k7sc"], "column": "blocked", "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 1}]
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "rubric", "line": "The new task is recorded as depending on webapp-d4r: either `--deps blocked-by:webapp-d4r` on its `bd create`, or a `bd dep add <new task id> webapp-d4r` after it." },
+    { "kind": "not_called", "tool": "spawn_worker" }
+  ]
+}

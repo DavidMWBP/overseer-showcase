@@ -1,0 +1,41 @@
+{
+  "id": "auto-redispatch-no-defect",
+  "source": {
+    "entry": "2026-09-17 — overseer-b97-aebq: interrupting a review round moves work away from landing",
+    "quote": "When a review round's findings are not defects — a verdict the critic could not record, a report that contains no defect — do not interrupt the worker that was re-dispatched. Let the rounds finish so the bead reaches `awaits a decision`, then put the reviewer's verdict to the user and land it with `accept_review`."
+  },
+  "input": "[Overseer] webapp-rfz review round 1 of 2 (codex gpt-5.6-sol) found issues; re-dispatched to claude sonnet with them:\n- [must] I've completed the review. My verdict is **pass** — no findings. Do not dispatch it again; the next review round follows on its own.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "webapp-b37-x5ub", "title": "Export the report as CSV", "branch": "feature/report-csv-export", "status": "open", "total": 2, "done": 1 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-rfy", "title": "CSV serialiser for report rows", "status": "closed", "labels": ["overseer:batch:webapp-b37-x5ub", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-rfz", "title": "Export as CSV button on the report page", "status": "in_progress", "labels": ["overseer:batch:webapp-b37-x5ub", "overseer:running"], "column": "running" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "worker_status",
+        "args": { "bead_id": "webapp-rfz" },
+        "reply": { "session_id": "9e1a3c5e-7f9b-4c1e-8a3c-5e7a9c1e3a6b", "harness": "claude", "account": "a-personal", "account_name": "Secondary Account", "account_label": null, "state": "running", "last_text": "The review reported no defect; checking the branch and the tests again before I end.", "end_reason": null, "files": [], "cost": null, "verify_status": "pass", "started_at": "2026-09-25T11:30:02.000Z", "ended_at": null }
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "webapp-rfz"] },
+        "reply": [{ "id": "webapp-rfz", "title": "Export as CSV button on the report page", "status": "in_progress", "labels": ["overseer:batch:webapp-b37-x5ub", "overseer:running"], "description": "Add an \"Export as CSV\" button to src/reports/ReportPage.vue that downloads the visible rows through the serialiser from webapp-rfy.\n\nDefinition of Done: `pnpm vitest run src/reports/ReportPage.test.ts` passes; `pnpm typecheck` passes.", "notes": "Re-dispatched to claude" }]
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "not_called", "tool": "interrupt_worker" },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "not_called", "tool": "accept_review" },
+    { "kind": "no_message" }
+  ]
+}

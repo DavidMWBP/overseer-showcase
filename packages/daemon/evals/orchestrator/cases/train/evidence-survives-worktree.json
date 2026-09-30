@@ -1,0 +1,49 @@
+{
+  "id": "evidence-survives-worktree",
+  "source": {
+    "entry": "2026-09-15 — acme-portal-sample-037 (evidence lost with the bead worktree)",
+    "quote": "A bead description that asks a verification-only worker to capture evidence for the user (screenshots, probe JSON, manifest) must tell the worker to upload each file to the repo's GitLab project uploads API"
+  },
+  "input": "[repo: acme-portal] For the review note, capture the admin record list on its branch at 390px and 1280px wide. No code changes. Sign in as the seeded demo admin demo-admin@example.test; the records include long names. Use the configured sign-in port. The test backend is reachable without private-network access.",
+  "state": {
+    "repos": [{ "id": "acme-portal", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "acme-portal-sample-037", "title": "#9263 Readable admin record list", "branch": "feature/9263-record-list", "status": "open", "total": 2, "done": 2 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_repos",
+        "reply": [{ "id": "acme-portal", "path": "C:\\eval\\repos\\acme-portal", "base_branch": "dev", "verify_command": "pnpm lint", "merge_mode": "gitlab-mr", "worker_limit": 3, "review_rounds": 2, "setup_command": "pnpm install", "verify_suspect": null, "batch_approver": "user", "review_command": null, "model_filter": null, "verification": "runs verify command `pnpm lint` in the bead's worktree after the worker ends" }]
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "acme-portal" },
+        "reply": [
+          { "id": "acme-portal-task-204", "title": "Wrap long names in the record list", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-037", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "acme-portal-task-205", "title": "Stack the value under the date below 640px", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-037", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "acme-portal" },
+        "reply": [{ "id": "acme-portal-sample-037", "repo_id": "acme-portal", "title": "#9263 Readable admin record list", "branch": "feature/9263-record-list", "base_branch": "dev", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-15T08:00:00.000Z", "updated_at": "2026-09-15T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 2, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["create"] },
+        "reply": [{ "id": "acme-portal-task-206", "status": "open", "title": "Screenshots of the records list at 390px and 1280px", "labels": ["overseer:batch:acme-portal-sample-037"] }]
+      },
+      {
+        "tool": "spawn_worker",
+        "args": { "bead_id": "acme-portal-task-206" },
+        "reply": { "session_id": "e4a6c8e0-2f4b-4e6a-8c0e-2a4c6e8a0c3d", "bead_id": "acme-portal-task-206", "harness": "claude", "model": "sonnet", "tier": "chore", "batch_id": "acme-portal-sample-037" }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "arg_contains", "tool": "bd", "arg": "args", "phrase": "upload" },
+    { "kind": "called", "tool": "spawn_worker", "args": { "verify_only": true } },
+    { "kind": "rubric", "line": "The task description forbids committing the screenshots and tells the worker to upload each file to the GitLab project uploads API and report the returned links in its final message." }
+  ]
+}

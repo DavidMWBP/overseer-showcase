@@ -1,0 +1,43 @@
+{
+  "id": "reported-failure-reproduce",
+  "source": {
+    "entry": "2026-09-17 — acme-portal-sample-014 retrospective: a reported test failure is reproduced before anything is edited",
+    "quote": "Applies to: worker prompt, and the orchestrator's bead-writing rules (a bead created from a reported failure states the exact command and requires the reproduction step before any edit)."
+  },
+  "input": "[repo: webapp] On my machine `pnpm e2e -- checkout` fails on dev at e2e/specs/checkout.spec.ts:41 with \"Timed out 10000ms waiting for locator('#pay-button')\". It passed yesterday. Please fix it.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": []
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_repos",
+        "reply": [{ "id": "webapp", "path": "C:\\eval\\repos\\webapp", "base_branch": "dev", "verify_command": "pnpm lint", "merge_mode": "gitlab-mr", "worker_limit": 3, "review_rounds": 2, "setup_command": "pnpm install", "verify_suspect": null, "batch_approver": "user", "review_command": null, "model_filter": null, "verification": "runs verify command `pnpm lint` in the bead's worktree after the worker ends" }]
+      },
+      { "tool": "list_tasks", "args": { "repo": "webapp" }, "reply": [] },
+      { "tool": "list_batches", "args": { "repo": "webapp" }, "reply": [] },
+      {
+        "tool": "create_batch",
+        "args": { "repo": "webapp" },
+        "reply": { "batch_id": "webapp-b34-c6ym", "branch": "feature/fix-checkout-e2e", "base_branch": "dev" }
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["create"] },
+        "reply": [{ "id": "webapp-p3y", "status": "open", "title": "Fix the checkout e2e timeout on #pay-button", "labels": ["overseer:batch:webapp-b34-c6ym"] }]
+      },
+      {
+        "tool": "spawn_worker",
+        "args": { "bead_id": "webapp-p3y" },
+        "reply": { "session_id": "6e8a0c2e-4f6b-4d8a-9c1e-3f5b7d9a1c4e", "bead_id": "webapp-p3y", "harness": "claude", "model": "sonnet", "tier": "standard", "batch_id": "webapp-b34-c6ym" }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "arg_contains", "tool": "bd", "arg": "args", "phrase": "pnpm e2e -- checkout" },
+    { "kind": "arg_contains", "tool": "bd", "arg": "args", "phrase": "reproduc" },
+    { "kind": "rubric", "line": "The task description requires the worker to run the reported command and reproduce the failure before editing anything." }
+  ]
+}

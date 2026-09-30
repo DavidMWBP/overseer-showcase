@@ -1,0 +1,45 @@
+{
+  "id": "verify-only-dispatch",
+  "source": {
+    "entry": "2026-09-14 — acme-portal-sample-036 (verification-only bead reopened without commits)",
+    "quote": "Applies to: daemon session-end rule, `spawn_worker` tool schema, orchestrator prompt (rule 17: dispatch verification-only beads with `verify_only: true`)."
+  },
+  "input": "[repo: webapp] Before I review the branch of webapp-b21-p4sn, have `pnpm typecheck`, `pnpm lint` and `pnpm test:unit` run on it and record each result. No code changes.",
+  "state": {
+    "repos": [{ "id": "webapp", "base_branch": "dev", "merge_mode": "gitlab-mr", "verify_command": "pnpm lint" }],
+    "batches": [{ "id": "webapp-b21-p4sn", "title": "#9357 Dev pipeline hotfix", "branch": "feature/357-dev-pipeline-hotfix", "status": "open", "total": 2, "done": 2 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "webapp" },
+        "reply": [
+          { "id": "webapp-u1a", "title": "Pin the Node image of the build job to 22.13", "status": "closed", "labels": ["overseer:batch:webapp-b21-p4sn", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "webapp-u2b", "title": "Drop the removed --legacy flag from the lint job", "status": "closed", "labels": ["overseer:batch:webapp-b21-p4sn", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "list_batches",
+        "args": { "repo": "webapp" },
+        "reply": [{ "id": "webapp-b21-p4sn", "repo_id": "webapp", "title": "#9357 Dev pipeline hotfix", "branch": "feature/357-dev-pipeline-hotfix", "base_branch": "dev", "status": "open", "mr_url": null, "conflict_files": null, "created_at": "2026-09-14T08:00:00.000Z", "updated_at": "2026-09-14T09:30:00.000Z", "merged_at": null, "origin_chat_id": null, "merged_commit": null, "setup_at": null, "waiting_on": null, "overlap_files": null, "refresh_from": null, "refresh_head": null, "last_pipeline_id": null, "last_pipeline_outcome": null, "review_check": null, "linked_chat_ids": [], "beads_total": 2, "beads_done": 2, "beads_closed": 0, "status_label": "open" }]
+      },
+      {
+        "tool": "bd",
+        "args": { "args": ["create"] },
+        "reply": [{ "id": "webapp-v3c", "status": "open", "title": "Verify typecheck, lint and unit tests on the hotfix branch", "labels": ["overseer:batch:webapp-b21-p4sn"] }]
+      },
+      {
+        "tool": "spawn_worker",
+        "args": { "bead_id": "webapp-v3c" },
+        "reply": { "session_id": "3c5e7a9c-1d3f-4b5d-8f7a-9c1e3a5c7e0b", "bead_id": "webapp-v3c", "harness": "claude", "model": "sonnet", "tier": "chore", "batch_id": "webapp-b21-p4sn" }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "spawn_worker", "args": { "verify_only": true } },
+    { "kind": "arg_contains", "tool": "spawn_worker", "arg": "batch_id", "phrase": "webapp-b21-p4sn" },
+    { "kind": "arg_contains", "tool": "bd", "arg": "args", "phrase": "Check:" }
+  ]
+}

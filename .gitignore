@@ -1,0 +1,18 @@
+node_modules/
+dist/
+*.log
+.overseer/
+*.tsbuildinfo
+.superpowers/
+.claude/worktrees/
+.tmp-orch/
+ds-bundle/
+.ds-sync/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+# Claude Code / Codex tool artefacts and plan execution-status mirrors
+.playwright-cli/
+.agents/
+docs/superpowers/plans/*.tasks.json
+.env

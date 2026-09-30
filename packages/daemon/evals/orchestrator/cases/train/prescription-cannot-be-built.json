@@ -1,0 +1,49 @@
+{
+  "id": "prescription-cannot-be-built",
+  "source": {
+    "entry": "2026-09-18 — acme-portal-sample-015: a finding that says the prescription cannot be built goes to the user",
+    "quote": "When a review round reports that the prescription itself cannot be built — a geometry that cannot render, a mechanism that cannot work — the same prescription is not re-dispatched. Verify the claim once, then put it to the user with `ask_user` and re-dispatch only with their new prescription. Repeating a finding that says \"this cannot be built\" cannot produce anything but the same finding."
+  },
+  "input": "[Overseer] acme-portal-sample-013 awaits a decision: review round 2 still has findings:\n- [must] src/components/Sidebar.vue: A 68px rail cannot render at tablet widths because the component remains hidden below 1024px. Adding a width does not make a hidden component visible. The task also forbids changing the visibility rule, so the requirements conflict. Ask the user which constraint to change.\nTotals so far: 3 worker sessions, 2 critic sessions, 2 re-dispatches, cost $14.20 (reported). Discuss the finding, then ask for a new prescription or accept the current result.",
+  "state": {
+    "repos": [{ "id": "acme-portal", "base_branch": "main", "merge_mode": "local-merge", "verify_command": "pnpm test" }],
+    "batches": [{ "id": "acme-portal-sample-015", "title": "Adaptive sidebar layout", "branch": "feature/adaptive-sidebar", "status": "open", "total": 3, "done": 2 }]
+  },
+  "fixtures": {
+    "default": { "reply": { "ok": true } },
+    "calls": [
+      {
+        "tool": "bd",
+        "args": { "args": ["show", "acme-portal-sample-013"] },
+        "reply": [{ "id": "acme-portal-sample-013", "title": "68px icon rail for the sidebar at tablet widths", "status": "open", "labels": ["overseer:batch:acme-portal-sample-015", "overseer:awaiting_decision"], "description": "Between 768px and 1023px the sidebar becomes a 68px icon rail: icons only, labels hidden, 12px padding.\n\nConstraints: keep the existing visibility rule; only add width and label rules for the tablet band.\n\nDefinition of Done: `pnpm test` passes; a 900px screenshot shows the 68px rail.", "notes": "Round 1 (claude fable): [must] the rail is not visible at 900px.\nRound 2 (claude fable): [must] the requested 68px tablet rail cannot render because the sidebar remains hidden at tablet widths." }]
+      },
+      {
+        "tool": "worker_diff",
+        "args": { "bead_id": "acme-portal-sample-013" },
+        "reply": { "diff": "diff --git a/src/components/Sidebar.vue b/src/components/Sidebar.vue\n--- a/src/components/Sidebar.vue\n+++ b/src/components/Sidebar.vue\n@@ -10,7 +10,7 @@\n <template>\n-  <aside class=\"hidden-outside-large wide-sidebar flex-col\">\n+  <aside class=\"hidden-outside-large wide-sidebar tablet-sidebar-68px wide-sidebar flex-col\">\n     <NavigationItem v-for=\"item in items\" :key=\"item.id\" :item=\"item\" />\n" }
+      },
+      {
+        "tool": "list_tasks",
+        "args": { "repo": "acme-portal" },
+        "reply": [
+          { "id": "acme-portal-task-301", "title": "Tablet breakpoint token", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-015", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "acme-portal-task-302", "title": "Tablet header layout", "status": "closed", "labels": ["overseer:batch:acme-portal-sample-015", "overseer:merged"], "column": "done" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0},
+          { "id": "acme-portal-sample-013", "title": "68px icon rail for the sidebar at tablet widths", "status": "open", "labels": ["overseer:batch:acme-portal-sample-015", "overseer:awaiting_decision"], "column": "ready" , "description": "", "priority": 2, "notes": "", "assignee": null, "closed_at": null, "dependency_count": 0}
+        ]
+      },
+      {
+        "tool": "ask_user",
+        "reply": {
+          "question_id": 1
+        }
+      }
+    ]
+  },
+  "assertions": [
+    { "kind": "called", "tool": "ask_user" },
+    { "kind": "not_called", "tool": "spawn_worker" },
+    { "kind": "not_called", "tool": "accept_review" },
+    { "kind": "not_called", "tool": "close_bead" },
+    { "kind": "rubric", "line": "The question tells the user that the prescribed 68px tablet rail cannot render as specified because the sidebar is hidden below 1024px, and asks the user for a new prescription or a decision on how to proceed." }
+  ]
+}
